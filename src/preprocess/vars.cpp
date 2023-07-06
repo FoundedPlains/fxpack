@@ -2,9 +2,18 @@
 #include <cstdio>
 #include <regex>
 #include <string>
+#include <variant>
 #include <vector>
 
 void Variable::addVariable(std::string name, std::string value) {
+    for (auto& var : this->vars) {
+        if (var.name == name) {
+            var.preprocessed = "";
+            var.value = value;
+            return;
+        }
+    }
+
     this->vars.push_back({
         .name = name,
         .value = value,
@@ -41,7 +50,16 @@ std::string __getVarName(std::string name) {
     return start.substr(0, start.length() - 1);
 }
 
-std::optional<std::string> Variable::preprocessValue(std::string name) {
+std::variant<std::string, VarError> Variable::preprocessValue(std::string name,
+    std::vector<std::string> names
+) {
+    if (std::find(names.begin(), names.end(), name) != names.end()) {
+        VarError err = {
+            .msg = "Recursion is not allowed!"
+        };
+        return err;
+    }
+    names.push_back(name);
     for(auto& var : this->vars) {
         if (var.name == name) {
             if (var.preprocessed.length() > 0) return var.value;
@@ -49,12 +67,21 @@ std::optional<std::string> Variable::preprocessValue(std::string name) {
             auto vars = __getVariableMatches(var.value);
             for (auto s : vars) {
                 std::string str = __getVarName(s);
-                __strReplace(value, s, this->preprocessValue(str).value_or(""), true);
+                auto ret = this->preprocessValue(str, names);
+                std::string *v = std::get_if<std::string>(&ret);
+                if (!v) return ret;
+                __strReplace(value, s, *v, true);
             }
 
             var.preprocessed = value;
             return value;
         }
     }
-    return {};
+    names.pop_back();
+
+    VarError err = {
+        .msg = "Variable \"" + name + "\" was not found!"
+    };
+
+    return err;
 }
