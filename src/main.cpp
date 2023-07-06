@@ -1,7 +1,9 @@
 #include <cstdio>
 #include <cstdlib>
+#include "preprocess/vars.hpp"
 
 int main(int argc, char **argv) {
-    printf("Hello\n");
+    Variable var;
+
     return EXIT_SUCCESS;
 }
