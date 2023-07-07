@@ -18,7 +18,7 @@ namespace toml {
 
         if (!toml_rtos(raw, &sval)) {
             node->type = TOML_STRING;
-            node->value.s = std::string(sval);
+            node->value.s = sval;
         } else if (!toml_rtoi(raw, &ival)) {
             node->type = TOML_INT;
             node->value.i = ival;
@@ -83,7 +83,7 @@ namespace toml {
         for (int i = 0; (key = toml_key_in(table, i)); i++) {
             if ((raw = toml_raw_in(table, key))) {
                 auto tmp = handleRaw(raw);
-                tmp->key = std::string_view(key);
+                tmp->key = key;
                 if (node->type == TomlTypes::TOML_TABLE) {
                     node->value.t.try_emplace(key, std::move(tmp));
                 } else {
@@ -91,7 +91,7 @@ namespace toml {
                 }
             } else if ((arr = toml_array_in(table, key))) {
                 auto tmp = handleArray(arr);
-                tmp->key = std::string_view(key);
+                tmp->key = key;
                 if (node->type == TomlTypes::TOML_TABLE) {
                     node->value.t.try_emplace(key, std::move(tmp));
                 } else {
@@ -99,7 +99,7 @@ namespace toml {
                 }
             } else if ((tab = toml_table_in(table, key))) {
                 auto tmp = handleTable(tab);
-                tmp->key = std::string(key);
+                tmp->key = key;
                 if (node->type == TomlTypes::TOML_TABLE) {
                     node->value.t.try_emplace(key, std::move(tmp));
                 } else {

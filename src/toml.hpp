@@ -30,7 +30,7 @@ namespace toml {
                 double f;
                 bool b;
                 std::vector<std::shared_ptr<TomlNode>> a;
-                std::map<std::string_view, std::shared_ptr<TomlNode>> t;
+                std::map<std::string, std::shared_ptr<TomlNode>> t;
                 toml_timestamp_t d;
             } value;
     };
